@@ -1,0 +1,10 @@
+c:\users\lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\bin\Debug\RobotBackuperv2.exe.config
+c:\users\lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\bin\Debug\RobotBackuperv2.exe
+c:\users\lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\bin\Debug\RobotBackuperv2.pdb
+c:\users\lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\obj\Debug\RobotBackuperv2.csprojAssemblyReference.cache
+c:\users\lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\obj\Debug\RobotBackuperv2.Form1.resources
+c:\users\lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\obj\Debug\RobotBackuperv2.Properties.Resources.resources
+c:\users\lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\obj\Debug\RobotBackuperv2.csproj.GenerateResource.cache
+c:\users\lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\obj\Debug\RobotBackuperv2.csproj.CoreCompileInputs.cache
+c:\users\lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\obj\Debug\RobotBackuperv2.exe
+c:\users\lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\obj\Debug\RobotBackuperv2.pdb

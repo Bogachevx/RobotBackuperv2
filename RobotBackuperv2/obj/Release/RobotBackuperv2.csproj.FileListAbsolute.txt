@@ -1,0 +1,9 @@
+C:\Users\Lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\bin\Release\RobotBackuperv2.exe.config
+C:\Users\Lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\bin\Release\RobotBackuperv2.exe
+C:\Users\Lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\bin\Release\RobotBackuperv2.pdb
+C:\Users\Lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\obj\Release\RobotBackuperv2.Form1.resources
+C:\Users\Lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\obj\Release\RobotBackuperv2.Properties.Resources.resources
+C:\Users\Lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\obj\Release\RobotBackuperv2.csproj.GenerateResource.cache
+C:\Users\Lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\obj\Release\RobotBackuperv2.csproj.CoreCompileInputs.cache
+C:\Users\Lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\obj\Release\RobotBackuperv2.exe
+C:\Users\Lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\obj\Release\RobotBackuperv2.pdb
