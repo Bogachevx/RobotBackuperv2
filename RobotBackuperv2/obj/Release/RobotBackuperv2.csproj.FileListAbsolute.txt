@@ -7,3 +7,15 @@ C:\Users\Lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\obj\Release\RobotBa
 C:\Users\Lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\obj\Release\RobotBackuperv2.csproj.CoreCompileInputs.cache
 C:\Users\Lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\obj\Release\RobotBackuperv2.exe
 C:\Users\Lenovo\source\repos\RobotBackuperv2\RobotBackuperv2\obj\Release\RobotBackuperv2.pdb
+C:\Projects\RobotBackuperv2\RobotBackuperv2\bin\Release\RobotBackuperv2.exe.config
+C:\Projects\RobotBackuperv2\RobotBackuperv2\bin\Release\RobotBackuperv2.exe
+C:\Projects\RobotBackuperv2\RobotBackuperv2\bin\Release\RobotBackuperv2.pdb
+C:\Projects\RobotBackuperv2\RobotBackuperv2\bin\Release\krcc.dll
+C:\Projects\RobotBackuperv2\RobotBackuperv2\obj\Release\RobotBackuperv2.csprojResolveAssemblyReference.cache
+C:\Projects\RobotBackuperv2\RobotBackuperv2\obj\Release\RobotBackuperv2.Form1.resources
+C:\Projects\RobotBackuperv2\RobotBackuperv2\obj\Release\RobotBackuperv2.Properties.Resources.resources
+C:\Projects\RobotBackuperv2\RobotBackuperv2\obj\Release\RobotBackuperv2.csproj.GenerateResource.cache
+C:\Projects\RobotBackuperv2\RobotBackuperv2\obj\Release\RobotBackuperv2.csproj.CoreCompileInputs.cache
+C:\Projects\RobotBackuperv2\RobotBackuperv2\obj\Release\RobotBackuperv2.csproj.CopyComplete
+C:\Projects\RobotBackuperv2\RobotBackuperv2\obj\Release\RobotBackuperv2.exe
+C:\Projects\RobotBackuperv2\RobotBackuperv2\obj\Release\RobotBackuperv2.pdb

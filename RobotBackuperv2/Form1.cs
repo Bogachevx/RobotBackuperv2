@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,175 +20,392 @@ namespace RobotBackuperv2
         volatile bool isConnected = false;
         volatile bool isBusy = false;
         volatile int mode = 0;
-        volatile int portBoxSize;
-        volatile String portName;
-        volatile String robotName;
+        volatile String portName = "NULL";
+        volatile String robotName = "Backup";
+        volatile SoundPlayer soundPlayer;
         Thread tryConThread;
         Thread checkConThread;
         Thread downloadThread;
         Thread portFinderThread;
+        volatile String[] Sounds; 
+        /*
+         * 0 - Loaded
+         * 1 - Connected
+         * 2 - Disconnected
+         * 3 - Backup started
+         * 4 - Backup finished
+        */
 
         public Form1()
         {
             InitializeComponent();
-            findPorts();
+            Width = 345;
+            
             tryConThread = new Thread(tryToConnect);
             checkConThread = new Thread(checkConnection);
             downloadThread = new Thread(downloadBackup);
-            //portFinderThread = new Thread(findPorts);
-            portName = " ";
-            checkConThread.Start();
-            consoleWrite("Trying to connect");
-            tryConThread.Start();
-            downloadThread.Start();
+            portFinderThread = new Thread(findPorts);
+
+            soundPlayer = new SoundPlayer("test.wav");
+            Sounds = File.ReadAllLines(@"sounds.dat");
+            
+            //Sounds.Add("Loaded", lines[0]);
+            //Sounds.Add("Connected", lines[1]);
+            //Sounds.Add("Disonnected", lines[2]);
+            //Sounds.Add("BStart", lines[3]);
+            //Sounds.Add("BEnd", lines[4]);
             //portFinderThread.Start();
         }
 
         private void findPorts()
         {
             string[] Ports;
-            //while (true)
-            //{
-                Ports = SerialPort.GetPortNames();
-                portBoxSize = Ports.Length;
+            bool isFirst = true;
+            int portBoxSize;
+            while (true)
+            {
+                try
+                {
+                    Ports = SerialPort.GetPortNames();
+                    portBoxSize = Ports.Length;
+                    //
+                    if (boxPortList.InvokeRequired)
+                        boxPortList.Invoke(new Action(delegate ()
+                        {
+                            if (boxPortList.Items.Count != portBoxSize)
+                            {
+                                boxPortList.Items.Clear();
+                                boxPortList.Items.AddRange(Ports);
 
-                //if (boxPortList.Items.Count != portBoxSize)
-                //{
-                    boxPortList.Items.Clear();
-                    boxPortList.Items.AddRange(Ports);
-                    if (portBoxSize != 0)
-                    {
-                        boxPortList.SelectedIndex = 0;
-                    }
-                    consoleWrite("Found " + portBoxSize + " ports");
-                //}
-                
-                //Thread.Sleep(5000);
-            //}
+                                consoleWrite("Found " + portBoxSize + " ports", Color.Green);
+                                if (isFirst)
+                                {
+                                    consoleWrite("Trying to connect", Color.Blue);
+                                    isFirst = false;
+                                }
+
+                                if (portBoxSize != 0)
+                                {
+                                    boxPortList.SelectedIndex = 0;
+                                    portName = boxPortList.SelectedItem.ToString();
+                                }
+                            }
+                    }));
+                }catch (Exception e) { };
+                Thread.Sleep(5000);
+
+            }
         }
 
-        private void asyncWrite(String text)
+        private void asyncWrite(String text, Color color = default(Color))
         {
-
-            textConsole.Text += "[" + DateTime.Now.ToString("HH:mm:ss")
+            textcConsole.WriteLine(text, color);
+            /*textConsole.Text += "[" + DateTime.Now.ToString("HH:mm:ss")
                 + "]: " + text + Environment.NewLine;
             textConsole.SelectionStart = textConsole.Text.Length;
-            textConsole.ScrollToCaret();
+            textConsole.ScrollToCaret();*/
         }
 
-        private void consoleWrite(String text)
+        private void consoleWrite(String text, Color color = default(Color))
         {
-            if (textConsole.InvokeRequired)
-                textConsole.Invoke(new Action(delegate () { asyncWrite(text); }));
+            if (textcConsole.InvokeRequired)
+                textcConsole.Invoke(new Action(delegate () { asyncWrite(text, color); }));
             else
-                asyncWrite(text);
+                asyncWrite(text, color);
         }
 
+        void backupUSB()
+        {
+            bool isShowed = false;
+            String dirName = robotName;
+            String robName = DateTime.Now.ToString("ddMMyy");
+            String resp;
+            String[] respl;
+            Char[] delim = new Char[] { '\n' };
+
+            lock (this)
+            {
+                if (labStatus.InvokeRequired)
+                    labStatus.Invoke(new Action(delegate ()
+                    {
+                        labStatus.Text = "Backuping";
+                        labStatus.ForeColor = Color.Orange;
+                    }));
+                serialPort.WriteLine("USB_FDEL " + dirName);
+                resp = waitResponse();
+                respl = resp.Split(delim, StringSplitOptions.RemoveEmptyEntries);
+                if (respl[1] == "(P2103)USB memory is not inserted.\r")
+                {
+                    if (!isShowed)
+                    {
+                        consoleWrite("Please input USB memory", Color.Red);
+                        isShowed = true;
+                    }
+                    return;
+                }
+                isShowed = false;
+
+                serialPort.WriteLine("USB_MKDIR " + dirName);
+                resp = waitResponse();
+                consoleWrite("Saving backup", Color.Blue);
+
+                serialPort.WriteLine("USB_SAVE " + dirName + "\\" + robName);
+                resp = waitResponse();
+                consoleWrite(resp);
+                consoleWrite("Backup saved\n", Color.Green);
+
+                serialPort.WriteLine("USB_SAVE/OPLOG " + dirName + "\\" + robName);
+                resp = waitResponse();
+                consoleWrite(resp);
+                consoleWrite("Operation log saved\n", Color.Green);
+                //consoleWrite(resp);
+                serialPort.WriteLine("USB_SAVE/ELOG " + dirName + "\\" + robName);
+                resp = waitResponse();
+                consoleWrite(resp);
+                consoleWrite("Error log saved\n", Color.Green);
+                consoleWrite("Finished\n", Color.Green);
+
+                if (labStatus.InvokeRequired)
+                    labStatus.Invoke(new Action(delegate ()
+                    {
+                        labStatus.Text = "Connected";
+                        labStatus.ForeColor = Color.Blue;
+                    }));
+                mode = 0;
+                isBusy = false;
+            }
+        }
+
+        void backupRS232()
+        {
+
+        }
 
         void checkConnection()
         {
             while (true)
             {
-                if (isConnected && !isBusy)
+                if (isConnected == true && isBusy == false)
                 {
                     
                     try
                     {
                         serialPort.WriteLine("");
                         string ad = serialPort.ReadTo(">");
-                       
-                        //break;
-
                     }
                     catch (Exception e)
                     {
+                        //if (!isBusy)
+                        //{
                         isConnected = false;
-                        consoleWrite("Disconnected!");
-                        consoleWrite("Trying to connect!");
-                        serialPort.Close();
+                        consoleWrite("Disconnected!", Color.Red);
+                        consoleWrite("Trying to connect!", Color.Blue);
+                        soundPlayer = new SoundPlayer(Sounds[2]);
+                        soundPlayer.Play();
+                        if (isBusy == false)
+                        {
+                            serialPort.Close();
+                            if (labStatus.InvokeRequired)
+                                labStatus.Invoke(new Action(delegate ()
+                                {
+                                    labStatus.Text = "Connecting";
+                                    labStatus.ForeColor = Color.Blue;
+                                }));
+                        }
+                        //}
                     }
+                    Thread.Sleep(2000);
                 }
+                //
             }
         }
 
         void tryToConnect()
         {
+            String resp;
+            String[] respl;
+            Char[] delimn = new Char[] { '\n', '\r' };
+            Char[] deliml = new Char[] { ' ' };
             while (true)
             {
-                if (isConnected == false)
+
+                if (isConnected == false && isBusy == false)
                 {
 
-                        serialPort = new SerialPort(portName);
-                        serialPort.ReadTimeout = 1000;
-                        try
-                        {
-                            serialPort.Open();
-                            serialPort.WriteLine("");
-                            string ad = serialPort.ReadTo(">");
-                            consoleWrite("Connected to" + portName);
-                            isConnected = true;
-                        }
-                        catch (Exception e)
-                        {
-                            serialPort.Close();
-                        }
-                    
+                    serialPort = new SerialPort(portName);
+                    serialPort.ReadTimeout = 1000;
+                    resp = "";
+                    try
+                    {
+                        serialPort.Open();
+                        serialPort.WriteLine("");
+                        resp = serialPort.ReadTo(">");
+                        serialPort.WriteLine("ID");
+                        serialPort.WriteLine(" ");
+                        Thread.Sleep(1000);
+                        resp = serialPort.ReadTo(">");
+                        resp = resp.Replace('-', '_');
+                        respl = resp.Split(delimn, StringSplitOptions.RemoveEmptyEntries);
+                        respl = respl[1].Split(deliml, StringSplitOptions.RemoveEmptyEntries);
+                        if (textRobotName.InvokeRequired)
+                            textRobotName.Invoke(new Action(delegate () 
+                            {
+                                textRobotName.Text = respl[2] + respl[9];
+                            }));
+                        if (labStatus.InvokeRequired)
+                            labStatus.Invoke(new Action(delegate ()
+                            {
+                                labStatus.Text = "Connected";
+                                labStatus.ForeColor = Color.Green;
+                            }));
+                        soundPlayer = new SoundPlayer(Sounds[1]);
+                        soundPlayer.Play();
+                        consoleWrite("Connected to " + portName, Color.Green);
+                        isConnected = true;
+                    }
+                    catch (Exception e)
+                    {
+                        serialPort.Close();
+                    }
+
                 }
+                Thread.Sleep(1000);
             }
+        }
+
+        String waitResponse()
+        {
+            String resp;
+            Thread.Sleep(100);
+            while (true)
+            {
+                try
+                {
+                    resp = serialPort.ReadTo(">");
+                    if (resp == "\r\n")
+                    {
+                        serialPort.WriteLine("");
+                        Thread.Sleep(100);
+                        continue;
+                    }
+
+                    break;
+                }
+                catch (Exception ex) { };
+            }
+            return resp;
         }
 
         void downloadBackup()
         {
-            while(true)
+            Object thisLock = new Object();
+            bool isShowed = false;
+            while (true)
             {
                 String dirName = robotName;
+                String robName = DateTime.Now.ToString("ddMMyy");
                 String resp;
-                robotName = DateTime.Now.ToString("ddMMyy");
+                String[] respl;
+                Char[] delim = new Char[] { '\n' };
                 switch (mode)
                 {
                     case 1:
-                        serialPort.WriteLine("USB_FDEL " + dirName);
-                        while (true)
                         {
-                            try
+                            
+                            lock (this)
                             {
-                                resp = serialPort.ReadTo(">");
-                                break;
+
+                                
+
+                                if (labStatus.InvokeRequired)
+                                    labStatus.Invoke(new Action(delegate ()
+                                    {
+                                        labStatus.Text = "Backuping";
+                                        labStatus.ForeColor = Color.Orange;
+                                    }));
+                                serialPort.WriteLine("USB_FDEL " + dirName);
+                                resp = waitResponse();
+                                respl = resp.Split(delim, StringSplitOptions.RemoveEmptyEntries);
+                                if (respl[1] == "(P2103)USB memory is not inserted.\r")
+                                {
+                                    if (!isShowed)
+                                    {
+                                        consoleWrite("Please input USB memory", Color.Red);
+                                        Thread.Sleep(1000);
+                                        soundPlayer = new SoundPlayer(Sounds[5]);
+                                        soundPlayer.Play();
+                                        isShowed = true;
+                                    }
+                                    break;
+                                }
+                                soundPlayer = new SoundPlayer(Sounds[3]);
+                                soundPlayer.Play();
+                                consoleWrite("Backuping", Color.Orange);
+                                isShowed = false;
+
+                                serialPort.WriteLine("USB_MKDIR " + dirName);
+                                resp = waitResponse();
+                                consoleWrite("Saving backup", Color.Blue);
+
+                                serialPort.WriteLine("USB_SAVE " + dirName + "\\" + robName);
+                                resp = waitResponse();
+                                consoleWrite(resp);
+                                consoleWrite("Backup saved\n", Color.Green);
+                                consoleWrite("Saving operation log", Color.Blue);
+                                serialPort.WriteLine("USB_SAVE/OPLOG " + dirName + "\\" + robName);
+                                resp = waitResponse();
+                                consoleWrite(resp);
+                                consoleWrite("Operation log saved\n", Color.Green);
+                                //consoleWrite(resp);
+                                consoleWrite("Saving error log", Color.Blue);
+                                serialPort.WriteLine("USB_SAVE/ELOG " + dirName + "\\" + robName);
+                                resp = waitResponse();
+                                consoleWrite(resp);
+                                consoleWrite("Error log saved\n", Color.Green);
+                                consoleWrite("Finished\n", Color.Green);
+                                soundPlayer = new SoundPlayer(Sounds[4]);
+                                soundPlayer.Play();
+
+                                if (labStatus.InvokeRequired)
+                                    labStatus.Invoke(new Action(delegate ()
+                                    {
+                                        labStatus.Text = "Connected";
+                                        labStatus.ForeColor = Color.Green;
+                                    }));
+                                mode = 0;
+                                isBusy = false;
                             }
-                            catch (Exception ex) { };
+                            break;
                         }
-                        //USB
-                        /*
-                         * resp = com.command("USB_FDEL " + dirName);              
-                comDelay();
-
-                resp = com.command("USB_MKDIR " + dirName);
-                comDelay();
-
-                if (resp[1].ToString().Substring(0, 2) == "(P")
-                {
-                    consoleWrite("Failed! Please input USB drive");
-                    return;
-                }
-                resp = com.command("USB_SAVE " + dirName + "\\" + RobotName);
-                comDelay();
-                consoleWrite("Backup saved");
-
-                resp = com.command("USB_SAVE/ELOG " + dirName + "\\" + RobotName);
-                comDelay();
-                consoleWrite("Error log saved");
-
-                resp = com.command("USB_SAVE/OPLOG " + dirName + "\\" + RobotName);
-                comDelay();
-                consoleWrite("Operation log saved");
-                         */
-                        consoleWrite("aaaaaaaa");
-                        mode = 0;
-                        //isBusy = false;
-                        break;
                     case 2:
                         //RS
-                        mode = 0;
+                        lock (this)
+                        {
+                            serialPort.Close();
+                            
+                            //Commu com = new Commu(portName);
+                            
+                            if (!System.IO.Directory.Exists(dirName))
+                            {
+                                System.IO.Directory.CreateDirectory(dirName);
+                            }
+
+                            //consoleWrite("Saving backup");
+                            //com.save(dirName + "/" + robotName + ".as");
+
+                            //comDelay();
+                            //consoleWrite("Saving operation log");
+
+                            //com.save(dirName + "/" + RobotName + ".ol", "", "/OPLOG");
+                            //comDelay();
+                            //consoleWrite("Saving error log");
+                            //com.stopLog();
+                            //com.save(dirName + "/" + RobotName + ".el", "", "/ELOG");
+
+                            serialPort.Open();
+                            mode = 0;
+                            isBusy = false;
+                        }
                         break;
                     default:
                         break;
@@ -202,10 +421,11 @@ namespace RobotBackuperv2
                 if (serialPort.IsOpen)
                 {
                     serialPort.Close();
+                    //isConnected = false;
                 }
                 
             } catch (Exception ex) { };
-            isConnected = false;
+            //isConnected = false;
         }
 
         private void textRobotName_TextChanged(object sender, EventArgs e)
@@ -215,8 +435,51 @@ namespace RobotBackuperv2
 
         private void trigUSB_Click(object sender, EventArgs e)
         {
+            //soundPlayer = new SoundPlayer(Sounds[3]);
+            //soundPlayer.Play();
             isBusy = true;
             mode = 1;
+        }
+
+        private void trigRS232_Click(object sender, EventArgs e)
+        {
+            isBusy = true;
+            mode = 2;
+        }
+
+        private void btnSide_Click(object sender, EventArgs e)
+        {
+            if (btnSide.Text == "<")
+            {
+                this.Width = 345;
+                btnSide.Text = ">";
+            }
+            else
+            {
+                this.Width = 950;
+                btnSide.Text = "<";
+            }
+                //Size.Width = 325;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            soundPlayer = new SoundPlayer(Sounds[0]);
+            soundPlayer.Play();
+            portFinderThread.Start();
+            checkConThread.Start();       
+            tryConThread.Start();
+            downloadThread.Start();
+            Thread.Sleep(1000);
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            tryConThread.Abort();// = new Thread(tryToConnect);
+            checkConThread.Abort();// = new Thread(checkConnection);
+            downloadThread.Abort();// = new Thread(downloadBackup);
+            portFinderThread.Abort();// = new Thread(findPorts);
+            
         }
     }
 }
