@@ -59,8 +59,6 @@
             this.boxPortList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.boxPortList.Font = new System.Drawing.Font("Verdana", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.boxPortList.FormattingEnabled = true;
-            this.boxPortList.Items.AddRange(new object[] {
-            "COM1"});
             this.boxPortList.Location = new System.Drawing.Point(3, 3);
             this.boxPortList.Name = "boxPortList";
             this.boxPortList.Size = new System.Drawing.Size(87, 31);
@@ -227,13 +225,14 @@
             this.textcConsole.Location = new System.Drawing.Point(3, 63);
             this.textcConsole.Name = "textcConsole";
             this.textcConsole.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedVertical;
-            this.textcConsole.Size = new System.Drawing.Size(587, 330);
+            this.textcConsole.Size = new System.Drawing.Size(531, 330);
             this.textcConsole.TabIndex = 5;
             this.textcConsole.Text = "";
             // 
             // btnStop
             // 
             this.btnStop.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnStop.Enabled = false;
             this.btnStop.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.btnStop.Font = new System.Drawing.Font("Verdana", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.btnStop.Location = new System.Drawing.Point(3, 3);
@@ -297,14 +296,14 @@
             this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 15F));
-            this.tableLayoutPanel5.Size = new System.Drawing.Size(593, 411);
+            this.tableLayoutPanel5.Size = new System.Drawing.Size(537, 411);
             this.tableLayoutPanel5.TabIndex = 13;
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(934, 428);
+            this.ClientSize = new System.Drawing.Size(869, 431);
             this.Controls.Add(this.tableLayoutPanel5);
             this.Controls.Add(this.tableLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;

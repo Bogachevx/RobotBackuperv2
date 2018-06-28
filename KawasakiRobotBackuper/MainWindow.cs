@@ -20,6 +20,7 @@ namespace KawasakiRobotBackuper
         volatile SerialPort serialPort;
         volatile bool isConnected = false;
         volatile bool isBusy = false;
+        volatile bool isTyping = true;
         volatile int mode = 0;
         volatile String portName = "NULL";
         volatile String robotName = "Backup";
@@ -111,10 +112,14 @@ namespace KawasakiRobotBackuper
         */
         private void consoleWrite(String text, Color color = default(Color))
         {
-            if (textcConsole.InvokeRequired)
-                textcConsole.Invoke(new Action(delegate () { textcConsole.WriteLine(text, color); }));
-            else
-                textcConsole.WriteLine(text, color);
+            if (isTyping)
+            {
+
+                if (textcConsole.InvokeRequired)
+                    textcConsole.Invoke(new Action(delegate () { textcConsole.WriteLine(text, color); }));
+                else
+                    textcConsole.WriteLine(text, color);
+            }
         }
 
         void backupUSB(String dirName, String robName, ref bool isShowed)
@@ -123,130 +128,135 @@ namespace KawasakiRobotBackuper
             String resp;
             String[] respl;
             Char[] delim = new Char[] { '\n' };
-
-
-            lock (this)
+            try
             {
-                if (labStatus.InvokeRequired)
-                    labStatus.Invoke(new Action(delegate ()
-                    {
-                        labStatus.Text = "Backuping";
-                        labStatus.BackColor = Color.Gold;
-                    }));
-                serialPort.WriteLine("USB_FDEL " + dirName);
-                resp = waitResponse();
-                respl = resp.Split(delim, StringSplitOptions.RemoveEmptyEntries);
-                if (respl[1] == "(P2103)USB memory is not inserted.\r")
+
+                lock (this)
                 {
-                    if (!isShowed)
+                    if (labStatus.InvokeRequired)
+                        labStatus.Invoke(new Action(delegate ()
+                        {
+                            labStatus.Text = "Backuping";
+                            labStatus.BackColor = Color.Gold;
+                        }));
+                    serialPort.WriteLine("USB_FDEL " + dirName);
+                    resp = waitResponse();
+                    respl = resp.Split(delim, StringSplitOptions.RemoveEmptyEntries);
+                    if (respl[1] == "(P2103)USB memory is not inserted.\r")
                     {
-                        consoleWrite("Please input USB memory", Color.Red);
-                        Thread.Sleep(1000);
-                        soundPlayer = new SoundPlayer(Sounds[5]);
-                        soundPlayer.Play();
-                        isShowed = true;
+                        if (!isShowed)
+                        {
+                            consoleWrite("Please input USB memory", Color.Red);
+                            Thread.Sleep(1000);
+                            soundPlayer = new SoundPlayer(Sounds[5]);
+                            soundPlayer.Play();
+                            isShowed = true;
+                        }
+                        return;
                     }
-                    return;
+                    soundPlayer = new SoundPlayer(Sounds[3]);
+                    soundPlayer.Play();
+                    consoleWrite("Backuping", Color.Orange);
+                    isShowed = false;
+
+                    serialPort.WriteLine("USB_MKDIR " + dirName);
+                    resp = waitResponse();
+                    consoleWrite("Saving backup", Color.Blue);
+
+                    serialPort.WriteLine("USB_SAVE " + dirName + "\\" + robName);
+                    resp = waitResponse();
+                    writeArray(resp);
+                    consoleWrite("Backup saved\n", Color.Green);
+
+                    consoleWrite("Saving operation log", Color.Blue);
+                    serialPort.WriteLine("USB_SAVE/OPLOG " + dirName + "\\" + robName);
+                    resp = waitResponse();
+                    writeArray(resp);
+                    consoleWrite("Operation log saved\n", Color.Green);
+
+                    consoleWrite("Saving error log", Color.Blue);
+                    serialPort.WriteLine("USB_SAVE/ELOG " + dirName + "\\" + robName);
+                    resp = waitResponse();
+                    writeArray(resp);
+                    consoleWrite("Error log saved\n", Color.Green);
+
+                    consoleWrite("Finished\n", Color.Green);
+                    soundPlayer = new SoundPlayer(Sounds[4]);
+                    soundPlayer.Play();
+
+                    if (labStatus.InvokeRequired)
+                        labStatus.Invoke(new Action(delegate ()
+                        {
+                            labStatus.Text = "Connected";
+                            labStatus.BackColor = Color.Chartreuse;
+                        }));
+                    if (blockPanel.InvokeRequired)
+                        blockPanel.Invoke(new Action(delegate ()
+                        {
+                            blockPanel.Enabled = true;
+                        }));
                 }
-                soundPlayer = new SoundPlayer(Sounds[3]);
-                soundPlayer.Play();
-                consoleWrite("Backuping", Color.Orange);
-                isShowed = false;
-
-                serialPort.WriteLine("USB_MKDIR " + dirName);
-                resp = waitResponse();
-                consoleWrite("Saving backup", Color.Blue);
-
-                serialPort.WriteLine("USB_SAVE " + dirName + "\\" + robName);
-                resp = waitResponse();
-                writeArray(resp);
-                consoleWrite("Backup saved\n", Color.Green);
-
-                consoleWrite("Saving operation log", Color.Blue);
-                serialPort.WriteLine("USB_SAVE/OPLOG " + dirName + "\\" + robName);
-                resp = waitResponse();
-                writeArray(resp);
-                consoleWrite("Operation log saved\n", Color.Green);
-
-                consoleWrite("Saving error log", Color.Blue);
-                serialPort.WriteLine("USB_SAVE/ELOG " + dirName + "\\" + robName);
-                resp = waitResponse();
-                writeArray(resp);
-                consoleWrite("Error log saved\n", Color.Green);
-
-                consoleWrite("Finished\n", Color.Green);
-                soundPlayer = new SoundPlayer(Sounds[4]);
-                soundPlayer.Play();
-
-                if (labStatus.InvokeRequired)
-                    labStatus.Invoke(new Action(delegate ()
-                    {
-                        labStatus.Text = "Connected";
-                        labStatus.BackColor = Color.Chartreuse;
-                    }));
-                if (blockPanel.InvokeRequired)
-                    blockPanel.Invoke(new Action(delegate ()
-                    {
-                        blockPanel.Enabled = true;
-                    }));
-                mode = 0;
-                isBusy = false;
-
-            }
-
+            } catch (Exception e) { };
+            mode = 0;
+            isBusy = false;
         }
 
         void backupRS232(String dirName, String robName)
         {
             lock (this)
             {
-                if (labStatus.InvokeRequired)
-                    labStatus.Invoke(new Action(delegate ()
-                    {
-                        labStatus.Text = "Backuping";
-                        labStatus.BackColor = Color.Orange;
-                    }));
-                serialPort.Close();
-
-                //Commu com = new Commu(portName);
-                com = new Commu(portName);
-                soundPlayer = new SoundPlayer(Sounds[3]);
-                soundPlayer.Play();
-                consoleWrite("Backuping", Color.Orange);
-
-                if (!System.IO.Directory.Exists(dirName))
+                try
                 {
-                    System.IO.Directory.CreateDirectory(dirName);
-                }
-                com.asInquiry = delegate (string as_msg)
-                {
-                    consoleWrite(as_msg);
-                    return null;
-                };
-                consoleWrite("Saving backup", Color.Blue);
-                com.save(dirName + "/" + robotName + ".as");
-                consoleWrite("Backup saved\n", Color.Green);
+                    if (labStatus.InvokeRequired)
+                        labStatus.Invoke(new Action(delegate ()
+                        {
+                            labStatus.Text = "Backuping";
+                            labStatus.BackColor = Color.Orange;
+                        }));
+                    serialPort.Close();
 
-                consoleWrite("Saving operation log", Color.Blue);
-                com.save(dirName + "/" + robotName + ".ol", "", "/OPLOG");
-                consoleWrite("Operation log saved\n", Color.Green);
+                    //Commu com = new Commu(portName);
+                    com = new Commu(portName);
+                    soundPlayer = new SoundPlayer(Sounds[3]);
+                    soundPlayer.Play();
+                    consoleWrite("Backuping", Color.Orange);
 
-                consoleWrite("Saving error log", Color.Blue);
-                com.save(dirName + "/" + robotName + ".el", "", "/ELOG");
-                consoleWrite("Error log saved\n", Color.Green);
-
-                consoleWrite("Finished\n", Color.Green);
-                soundPlayer = new SoundPlayer(Sounds[4]);
-                soundPlayer.Play();
-
-                if (labStatus.InvokeRequired)
-                    labStatus.Invoke(new Action(delegate ()
+                    if (!System.IO.Directory.Exists(dirName))
                     {
-                        labStatus.Text = "Connected";
-                        labStatus.BackColor = Color.Chartreuse;
-                    }));
-                com.disconnect();
-                serialPort.Open();
+                        System.IO.Directory.CreateDirectory(dirName);
+                    }
+                    com.asInquiry = delegate (string as_msg)
+                    {
+                        consoleWrite(as_msg);
+                        return null;
+                    };
+                    consoleWrite("Saving backup", Color.Blue);
+                    com.save(dirName + "/" + robotName + ".as");
+                    consoleWrite("Backup saved\n", Color.Green);
+
+                    consoleWrite("Saving operation log", Color.Blue);
+                    com.save(dirName + "/" + robotName + ".ol", "", "/OPLOG");
+                    consoleWrite("Operation log saved\n", Color.Green);
+
+                    consoleWrite("Saving error log", Color.Blue);
+                    com.save(dirName + "/" + robotName + ".el", "", "/ELOG");
+                    consoleWrite("Error log saved\n", Color.Green);
+
+                    consoleWrite("Finished\n", Color.Green);
+                    if (isTyping)
+                    {
+                        soundPlayer = new SoundPlayer(Sounds[4]);
+                        soundPlayer.Play();
+                    }
+                    if (labStatus.InvokeRequired)
+                        labStatus.Invoke(new Action(delegate ()
+                        {
+                            labStatus.Text = "Connected";
+                            labStatus.BackColor = Color.Chartreuse;
+                        }));
+                    com.disconnect();
+                    serialPort.Open();
+                } catch (Exception e) { };
                 mode = 0;
                 isBusy = false;
             }
@@ -356,8 +366,9 @@ namespace KawasakiRobotBackuper
 
         String waitResponse()
         {
-            String resp;
+            String resp = "";
             Thread.Sleep(100);
+            int i = 0;
             while (true)
             {
                 try
@@ -373,6 +384,11 @@ namespace KawasakiRobotBackuper
                     break;
                 }
                 catch (Exception ex) { };
+                i++;
+                if (i == 10)
+                {
+                    break;
+                }
             }
             return resp;
         }
@@ -432,12 +448,16 @@ namespace KawasakiRobotBackuper
                     case 1:
                         {
                             backupUSB(dirName, robName, ref isShowed);
+                            isTyping = true;
                             break;
                         }
                     case 2:
-                        //RS
+                        {
+                            //RS
                             backupRS232(dirName, robName);
-                        break;
+                            isTyping = true;
+                            break;
+                        }
                     default:
                         break;
                 }
@@ -446,18 +466,22 @@ namespace KawasakiRobotBackuper
 
         private void boxPortList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            portName = boxPortList.SelectedItem.ToString();
-            try
+            //portName = boxPortList.SelectedItem.ToString();
+            if (portName != boxPortList.SelectedItem.ToString())
             {
-                if (serialPort.IsOpen)
+                portName = boxPortList.SelectedItem.ToString();
+                try
                 {
-                    serialPort.Close();
-                    //isConnected = false;
-                }
+                    if (serialPort.IsOpen)
+                    {
+                        serialPort.Close();
+                        //isConnected = false;
+                    }
 
+                }
+                catch (Exception ex) { };
             }
-            catch (Exception ex) { };
-            //isConnected = false;
+            //isConnected = false;}
         }
 
         private void textRobotName_TextChanged(object sender, EventArgs e)
@@ -468,6 +492,7 @@ namespace KawasakiRobotBackuper
         private void trigUSB_Click(object sender, EventArgs e)
         {
             blockPanel.Enabled = false;
+            btnStop.Enabled = true;
             isBusy = true;
             mode = 1;
         }
@@ -475,6 +500,7 @@ namespace KawasakiRobotBackuper
         private void trigRS232_Click(object sender, EventArgs e)
         {
             blockPanel.Enabled = false;
+            btnStop.Enabled = true;
             isBusy = true;
             mode = 2;
         }
@@ -488,7 +514,7 @@ namespace KawasakiRobotBackuper
             }
             else
             {
-                this.Width = 950;
+                this.Width = 885;
                 btnSide.Text = "Less";
             }
         }
@@ -515,7 +541,27 @@ namespace KawasakiRobotBackuper
 
         private void button1_Click(object sender, EventArgs e)
         {
-            //com.disconnect();
+            isTyping = false;
+            consoleWrite("Cancelled", Color.Red);
+            if (serialPort.IsOpen)
+            {
+                
+                    serialPort.Close();
+                    serialPort.Open();
+            }
+            else
+            {
+ 
+                com.disconnect();
+                serialPort.Open();
+
+                    //Thread.Sleep(500);
+                //for (int i = 0; i < 10; i++)
+                //{
+                serialPort.WriteLine("\r\n\r\n\r\n\r\n");
+                //}
+            }
+            btnStop.Enabled = false;
         }
 
 

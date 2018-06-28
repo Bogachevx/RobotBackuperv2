@@ -6,7 +6,6 @@ C:\Projects\RobotBackuperv2\KawasakiRobotBackuper\bin\Release\KawasakiRobotBacku
 C:\Projects\RobotBackuperv2\KawasakiRobotBackuper\bin\Release\KawasakiRobotBackuper.exe
 C:\Projects\RobotBackuperv2\KawasakiRobotBackuper\bin\Release\KawasakiRobotBackuper.pdb
 C:\Projects\RobotBackuperv2\KawasakiRobotBackuper\bin\Release\krcc.dll
-C:\Projects\RobotBackuperv2\KawasakiRobotBackuper\obj\Release\KawasakiRobotBackuper.csprojResolveAssemblyReference.cache
 C:\Projects\RobotBackuperv2\KawasakiRobotBackuper\obj\Release\KawasakiRobotBackuper.csproj.CopyComplete
 C:\Projects\RobotBackuperv2\KawasakiRobotBackuper\obj\Release\KawasakiRobotBackuper.exe
 C:\Projects\RobotBackuperv2\KawasakiRobotBackuper\obj\Release\KawasakiRobotBackuper.pdb
