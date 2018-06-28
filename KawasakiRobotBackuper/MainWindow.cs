@@ -131,7 +131,7 @@ namespace KawasakiRobotBackuper
                     labStatus.Invoke(new Action(delegate ()
                     {
                         labStatus.Text = "Backuping";
-                        labStatus.ForeColor = Color.Orange;
+                        labStatus.BackColor = Color.Gold;
                     }));
                 serialPort.WriteLine("USB_FDEL " + dirName);
                 resp = waitResponse();
@@ -182,7 +182,7 @@ namespace KawasakiRobotBackuper
                     labStatus.Invoke(new Action(delegate ()
                     {
                         labStatus.Text = "Connected";
-                        labStatus.ForeColor = Color.Green;
+                        labStatus.BackColor = Color.Chartreuse;
                     }));
                 if (blockPanel.InvokeRequired)
                     blockPanel.Invoke(new Action(delegate ()
@@ -204,7 +204,7 @@ namespace KawasakiRobotBackuper
                     labStatus.Invoke(new Action(delegate ()
                     {
                         labStatus.Text = "Backuping";
-                        labStatus.ForeColor = Color.Orange;
+                        labStatus.BackColor = Color.Orange;
                     }));
                 serialPort.Close();
 
@@ -243,7 +243,7 @@ namespace KawasakiRobotBackuper
                     labStatus.Invoke(new Action(delegate ()
                     {
                         labStatus.Text = "Connected";
-                        labStatus.ForeColor = Color.Green;
+                        labStatus.BackColor = Color.Chartreuse;
                     }));
                 com.disconnect();
                 serialPort.Open();
@@ -280,7 +280,7 @@ namespace KawasakiRobotBackuper
                                 labStatus.Invoke(new Action(delegate ()
                                 {
                                     labStatus.Text = "Connecting";
-                                    labStatus.ForeColor = Color.Blue;
+                                    labStatus.BackColor = Color.SkyBlue;
                                 }));
                             if (blockPanel.InvokeRequired)
                                 blockPanel.Invoke(new Action(delegate ()
@@ -332,7 +332,7 @@ namespace KawasakiRobotBackuper
                             labStatus.Invoke(new Action(delegate ()
                             {
                                 labStatus.Text = "Connected";
-                                labStatus.ForeColor = Color.Green;
+                                labStatus.BackColor = Color.Chartreuse;
                             }));
                         soundPlayer = new SoundPlayer(Sounds[1]);
                         soundPlayer.Play();
@@ -481,15 +481,15 @@ namespace KawasakiRobotBackuper
 
         private void btnSide_Click(object sender, EventArgs e)
         {
-            if (btnSide.Text == "<")
+            if (btnSide.Text == "Less")
             {
                 this.Width = 345;
-                btnSide.Text = ">";
+                btnSide.Text = "More";
             }
             else
             {
                 this.Width = 950;
-                btnSide.Text = "<";
+                btnSide.Text = "Less";
             }
         }
 
@@ -515,8 +515,10 @@ namespace KawasakiRobotBackuper
 
         private void button1_Click(object sender, EventArgs e)
         {
-            com.disconnect();
+            //com.disconnect();
         }
+
+
     }
 }
 
