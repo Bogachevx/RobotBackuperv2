@@ -31,6 +31,8 @@ namespace KawasakiRobotBackuper
         Thread checkConThread;
         Thread downloadThread;
         Thread portFinderThread;
+
+        int easterEggCounter = 0;
         //volatile String[] Sounds;
         //volatile Commu com;
         /*
@@ -51,6 +53,10 @@ namespace KawasakiRobotBackuper
             checkConThread = new Thread(checkConnection);
             downloadThread = new Thread(downloadBackup);
             portFinderThread = new Thread(findPorts);
+            tryConThread.IsBackground = true;
+            checkConThread.IsBackground = true;
+            downloadThread.IsBackground = true;
+            portFinderThread.IsBackground = true;
 
             //soundPlayer = new SoundPlayer("test.wav");
             //Sounds = Properties.Resources.sounds.Split(seps, StringSplitOptions.RemoveEmptyEntries);//File.ReadAllLines(@"sounds.dat");
@@ -240,6 +246,11 @@ namespace KawasakiRobotBackuper
                         {
                             labStatus.Text = "Connected";
                             labStatus.BackColor = Color.Chartreuse;
+                        }));
+                    if (blockPanel.InvokeRequired)
+                        blockPanel.Invoke(new Action(delegate ()
+                        {
+                            blockPanel.Enabled = true;
                         }));
                     com.disconnect();
                     serialPort.Open();
@@ -486,11 +497,13 @@ namespace KawasakiRobotBackuper
         {
             if (btnSide.Text == "Less")
             {
+                FormBorderStyle = FormBorderStyle.FixedSingle;
                 Width = 345;
                 btnSide.Text = "More";
             }
             else
             {
+                FormBorderStyle = FormBorderStyle.Sizable;
                 Width = 885;
                 btnSide.Text = "Less";
             }
@@ -506,15 +519,6 @@ namespace KawasakiRobotBackuper
             downloadThread.Start();
             Thread.Sleep(1000);
             soundPlayer.Play();
-        }
-
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            tryConThread.Abort();
-            checkConThread.Abort();
-            downloadThread.Abort();
-            portFinderThread.Abort();
-
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -537,7 +541,24 @@ namespace KawasakiRobotBackuper
             btnStop.Enabled = false;
         }
 
+        private void MainWindow_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            tryConThread.Abort();
+            checkConThread.Abort();
+            downloadThread.Abort();
+            portFinderThread.Abort();
+        }
 
+        private void pictureBox2_Click(object sender, EventArgs e)
+        {
+            easterEggCounter++;
+            if (easterEggCounter == 3)
+            {
+                soundPlayer = new SoundPlayer(Properties.Resources.kb);
+                soundPlayer.Play();
+                easterEggCounter = 0;
+            }
+        }
     }
 }
 

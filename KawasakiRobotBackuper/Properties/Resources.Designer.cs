@@ -61,6 +61,25 @@ namespace KawasakiRobotBackuper.Properties {
         }
         
         /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap icon {
+            get {
+                object obj = ResourceManager.GetObject("icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.IO.UnmanagedMemoryStream, аналогичного System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream kb {
+            get {
+                return ResourceManager.GetStream("kb", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Поиск локализованного ресурса типа System.IO.UnmanagedMemoryStream, аналогичного System.IO.MemoryStream.
         /// </summary>
         internal static System.IO.UnmanagedMemoryStream maxcon {
@@ -111,21 +130,6 @@ namespace KawasakiRobotBackuper.Properties {
         internal static System.IO.UnmanagedMemoryStream maxopen {
             get {
                 return ResourceManager.GetStream("maxopen", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Ищет локализованную строку, похожую на maxopen.wav
-        ///maxcon.wav
-        ///maxdiscon.wav
-        ///maxload.wav
-        ///maxfinished.wav
-        ///maxflash.wav
-        ///.
-        /// </summary>
-        internal static string sounds {
-            get {
-                return ResourceManager.GetString("sounds", resourceCulture);
             }
         }
     }
