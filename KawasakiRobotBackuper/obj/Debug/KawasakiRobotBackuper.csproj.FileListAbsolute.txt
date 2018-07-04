@@ -19,4 +19,3 @@ C:\Projects\RobotBackuperv2\KawasakiRobotBackuper\obj\Debug\KawasakiRobotBackupe
 C:\Projects\RobotBackuperv2\KawasakiRobotBackuper\obj\Debug\KawasakiRobotBackuper.exe
 C:\Projects\RobotBackuperv2\KawasakiRobotBackuper\obj\Debug\KawasakiRobotBackuper.pdb
 C:\Projects\RobotBackuperv2\KawasakiRobotBackuper\bin\Debug\krcc.dll
-C:\Projects\RobotBackuperv2\KawasakiRobotBackuper\obj\Debug\KawasakiRobotBackuper.csprojResolveAssemblyReference.cache

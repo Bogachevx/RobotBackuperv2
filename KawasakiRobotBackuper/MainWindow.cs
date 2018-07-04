@@ -31,7 +31,7 @@ namespace KawasakiRobotBackuper
         Thread checkConThread;
         Thread downloadThread;
         Thread portFinderThread;
-        volatile String[] Sounds;
+        //volatile String[] Sounds;
         //volatile Commu com;
         /*
          * 0 - Loaded
@@ -45,23 +45,17 @@ namespace KawasakiRobotBackuper
         {
             InitializeComponent();
             Width = 345;
-            
-            //com = new Commu("COM3");
 
+            Char[] seps = new Char[] { '\r', '\n' };
             tryConThread = new Thread(tryToConnect);
             checkConThread = new Thread(checkConnection);
             downloadThread = new Thread(downloadBackup);
             portFinderThread = new Thread(findPorts);
 
-            soundPlayer = new SoundPlayer("test.wav");
-            Sounds = File.ReadAllLines(@"sounds.dat");
+            //soundPlayer = new SoundPlayer("test.wav");
+            //Sounds = Properties.Resources.sounds.Split(seps, StringSplitOptions.RemoveEmptyEntries);//File.ReadAllLines(@"sounds.dat");
 
-            //Sounds.Add("Loaded", lines[0]);
-            //Sounds.Add("Connected", lines[1]);
-            //Sounds.Add("Disonnected", lines[2]);
-            //Sounds.Add("BStart", lines[3]);
-            //Sounds.Add("BEnd", lines[4]);
-            //portFinderThread.Start();
+
         }
 
         private void findPorts()
@@ -75,7 +69,6 @@ namespace KawasakiRobotBackuper
                 {
                     Ports = SerialPort.GetPortNames();
                     portBoxSize = Ports.Length;
-                    //
                     if (boxPortList.InvokeRequired)
                         boxPortList.Invoke(new Action(delegate ()
                         {
@@ -105,11 +98,6 @@ namespace KawasakiRobotBackuper
             }
         }
 
-        /*private void asyncWrite(String text, Color color = default(Color))
-        {
-            textcConsole.WriteLine(text, color);
-        }
-        */
         private void consoleWrite(String text, Color color = default(Color))
         {
             if (isTyping)
@@ -148,13 +136,13 @@ namespace KawasakiRobotBackuper
                         {
                             consoleWrite("Please input USB memory", Color.Red);
                             Thread.Sleep(1000);
-                            soundPlayer = new SoundPlayer(Sounds[5]);
+                            soundPlayer = new SoundPlayer(Properties.Resources.maxflash);//(Sounds[5]);
                             soundPlayer.Play();
                             isShowed = true;
                         }
                         return;
                     }
-                    soundPlayer = new SoundPlayer(Sounds[3]);
+                    soundPlayer = new SoundPlayer(Properties.Resources.maxload);//(Sounds[3]);
                     soundPlayer.Play();
                     consoleWrite("Backuping", Color.Orange);
                     isShowed = false;
@@ -181,7 +169,7 @@ namespace KawasakiRobotBackuper
                     consoleWrite("Error log saved\n", Color.Green);
 
                     consoleWrite("Finished\n", Color.Green);
-                    soundPlayer = new SoundPlayer(Sounds[4]);
+                    soundPlayer = new SoundPlayer(Properties.Resources.maxfinished);//(Sounds[4]);
                     soundPlayer.Play();
 
                     if (labStatus.InvokeRequired)
@@ -211,13 +199,12 @@ namespace KawasakiRobotBackuper
                         labStatus.Invoke(new Action(delegate ()
                         {
                             labStatus.Text = "Backuping";
-                            labStatus.BackColor = Color.Orange;
+                            labStatus.BackColor = Color.Gold;
                         }));
                     serialPort.Close();
 
-                    //Commu com = new Commu(portName);
                     com = new Commu(portName);
-                    soundPlayer = new SoundPlayer(Sounds[3]);
+                    soundPlayer = new SoundPlayer(Properties.Resources.maxload);
                     soundPlayer.Play();
                     consoleWrite("Backuping", Color.Orange);
 
@@ -231,21 +218,21 @@ namespace KawasakiRobotBackuper
                         return null;
                     };
                     consoleWrite("Saving backup", Color.Blue);
-                    com.save(dirName + "/" + robotName + ".as");
+                    com.save(dirName + "/" + robName + ".as");
                     consoleWrite("Backup saved\n", Color.Green);
 
                     consoleWrite("Saving operation log", Color.Blue);
-                    com.save(dirName + "/" + robotName + ".ol", "", "/OPLOG");
+                    com.save(dirName + "/" + robName + ".ol", "", "/OPLOG");
                     consoleWrite("Operation log saved\n", Color.Green);
 
                     consoleWrite("Saving error log", Color.Blue);
-                    com.save(dirName + "/" + robotName + ".el", "", "/ELOG");
+                    com.save(dirName + "/" + robName + ".el", "", "/ELOG");
                     consoleWrite("Error log saved\n", Color.Green);
 
                     consoleWrite("Finished\n", Color.Green);
                     if (isTyping)
                     {
-                        soundPlayer = new SoundPlayer(Sounds[4]);
+                        soundPlayer = new SoundPlayer(Properties.Resources.maxfinished);
                         soundPlayer.Play();
                     }
                     if (labStatus.InvokeRequired)
@@ -276,12 +263,10 @@ namespace KawasakiRobotBackuper
                     }
                     catch (Exception e)
                     {
-                        //if (!isBusy)
-                        //{
                         isConnected = false;
                         consoleWrite("Disconnected!", Color.Red);
                         consoleWrite("Trying to connect!", Color.Blue);
-                        soundPlayer = new SoundPlayer(Sounds[2]);
+                        soundPlayer = new SoundPlayer(Properties.Resources.maxdiscon);//(Sounds[2]);
                         soundPlayer.Play();
                         if (isBusy == false)
                         {
@@ -298,11 +283,9 @@ namespace KawasakiRobotBackuper
                                     blockPanel.Enabled = false;
                                 }));
                         }
-                        //}
                     }
                     Thread.Sleep(2000);
                 }
-                //
             }
         }
 
@@ -344,7 +327,7 @@ namespace KawasakiRobotBackuper
                                 labStatus.Text = "Connected";
                                 labStatus.BackColor = Color.Chartreuse;
                             }));
-                        soundPlayer = new SoundPlayer(Sounds[1]);
+                        soundPlayer = new SoundPlayer(Properties.Resources.maxcon);//(Sounds[1]);
                         soundPlayer.Play();
                         consoleWrite("Connected to " + portName, Color.Green);
                         isConnected = true;
@@ -440,8 +423,6 @@ namespace KawasakiRobotBackuper
             {
                 String dirName = robotName;
                 String robName = DateTime.Now.ToString("ddMMyy");
-                String resp;
-                String[] respl;
                 Char[] delim = new Char[] { '\n' };
                 switch (mode)
                 {
@@ -453,7 +434,6 @@ namespace KawasakiRobotBackuper
                         }
                     case 2:
                         {
-                            //RS
                             backupRS232(dirName, robName);
                             isTyping = true;
                             break;
@@ -466,7 +446,6 @@ namespace KawasakiRobotBackuper
 
         private void boxPortList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //portName = boxPortList.SelectedItem.ToString();
             if (portName != boxPortList.SelectedItem.ToString())
             {
                 portName = boxPortList.SelectedItem.ToString();
@@ -475,13 +454,11 @@ namespace KawasakiRobotBackuper
                     if (serialPort.IsOpen)
                     {
                         serialPort.Close();
-                        //isConnected = false;
                     }
 
                 }
                 catch (Exception ex) { };
             }
-            //isConnected = false;}
         }
 
         private void textRobotName_TextChanged(object sender, EventArgs e)
@@ -509,25 +486,26 @@ namespace KawasakiRobotBackuper
         {
             if (btnSide.Text == "Less")
             {
-                this.Width = 345;
+                Width = 345;
                 btnSide.Text = "More";
             }
             else
             {
-                this.Width = 885;
+                Width = 885;
                 btnSide.Text = "Less";
             }
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void MainWindow_Load(object sender, EventArgs e)
         {
-            soundPlayer = new SoundPlayer(Sounds[0]);
-            soundPlayer.Play();
+            soundPlayer = new SoundPlayer(Properties.Resources.maxopen);//(Sounds[0]);
+
             portFinderThread.Start();
             checkConThread.Start();
             tryConThread.Start();
             downloadThread.Start();
             Thread.Sleep(1000);
+            soundPlayer.Play();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -554,12 +532,7 @@ namespace KawasakiRobotBackuper
  
                 com.disconnect();
                 serialPort.Open();
-
-                    //Thread.Sleep(500);
-                //for (int i = 0; i < 10; i++)
-                //{
                 serialPort.WriteLine("\r\n\r\n\r\n\r\n");
-                //}
             }
             btnStop.Enabled = false;
         }

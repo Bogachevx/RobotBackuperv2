@@ -59,5 +59,74 @@ namespace KawasakiRobotBackuper.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.IO.UnmanagedMemoryStream, аналогичного System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream maxcon {
+            get {
+                return ResourceManager.GetStream("maxcon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.IO.UnmanagedMemoryStream, аналогичного System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream maxdiscon {
+            get {
+                return ResourceManager.GetStream("maxdiscon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.IO.UnmanagedMemoryStream, аналогичного System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream maxfinished {
+            get {
+                return ResourceManager.GetStream("maxfinished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.IO.UnmanagedMemoryStream, аналогичного System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream maxflash {
+            get {
+                return ResourceManager.GetStream("maxflash", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.IO.UnmanagedMemoryStream, аналогичного System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream maxload {
+            get {
+                return ResourceManager.GetStream("maxload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.IO.UnmanagedMemoryStream, аналогичного System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream maxopen {
+            get {
+                return ResourceManager.GetStream("maxopen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на maxopen.wav
+        ///maxcon.wav
+        ///maxdiscon.wav
+        ///maxload.wav
+        ///maxfinished.wav
+        ///maxflash.wav
+        ///.
+        /// </summary>
+        internal static string sounds {
+            get {
+                return ResourceManager.GetString("sounds", resourceCulture);
+            }
+        }
     }
 }
